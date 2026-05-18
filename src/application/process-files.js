@@ -55,8 +55,28 @@ async function processOneFile(key, propertyCatalog, deps) {
   }
 
   if (rows.length === 0) {
-    logger.warn({ key }, 'empty CSV');
-    await r2.move({ sourceKey: key, destKey: `files_out/${ts}-${baseName}` });
+    logger.debug({ key }, 'empty CSV');
+    const destKey = `files_out/${ts}-${baseName}`;
+    await r2.move({ sourceKey: key, destKey });
+    const reportKey = `files_out/${ts}-${baseName.replace(/\.csv$/, '')}.report.json`;
+    const report = {
+      processed_at: now.toISOString(),
+      input_file: key,
+      output_file: destKey,
+      rows_total: 0,
+      duplicates_collapsed: 0,
+      rows_skipped: 0,
+      rows_processed: 0,
+      contacts_created: 0,
+      contacts_updated: 0,
+      contacts_unchanged: 0,
+      errors_file: null,
+    };
+    await r2.upload({
+      key: reportKey,
+      body: Buffer.from(buildReportJson(report), 'utf8'),
+      contentType: 'application/json',
+    });
     return;
   }
 

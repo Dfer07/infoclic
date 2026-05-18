@@ -138,3 +138,31 @@ test('sube un .report.json al final del procesamiento exitoso', async () => {
   assert.equal(parsed.rows_total, 1);
   assert.equal(parsed.contacts_created, 1);
 });
+
+test('empty CSV generates report and moves to files_out', async () => {
+  const csv = 'firstname,documento_de_identidad\n'; // Only header, no rows
+  const deps = makeFakeDeps({
+    files: ['files_in/empty.csv'],
+    fileBuffers: { 'files_in/empty.csv': Buffer.from(csv) },
+  });
+
+  await processIncomingFiles(deps);
+
+  // File moved to files_out
+  const mainMove = deps.calls.movedTo.find((m) => m.destKey.startsWith('files_out/'));
+  assert.ok(mainMove);
+
+  // Report generated
+  const reportUpload = deps.calls.uploaded.find((u) => u.key.endsWith('.report.json'));
+  assert.ok(reportUpload);
+  const parsed = JSON.parse(reportUpload.body);
+  assert.equal(parsed.rows_total, 0);
+  assert.equal(parsed.contacts_created, 0);
+  assert.equal(parsed.contacts_updated, 0);
+  assert.equal(parsed.contacts_unchanged, 0);
+  assert.equal(parsed.errors_file, null);
+
+  // No errors CSV
+  const errorsUpload = deps.calls.uploaded.find((u) => u.key.endsWith('.errors.csv'));
+  assert.equal(errorsUpload, undefined);
+});
