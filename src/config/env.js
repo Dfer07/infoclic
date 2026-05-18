@@ -8,6 +8,16 @@ const required = (name) => {
   return value;
 };
 
+const parseNonNegativeNumber = (name, defaultValue) => {
+  const raw = process.env[name];
+  if (raw === undefined || raw === '') return defaultValue;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`Env var ${name} must be a non-negative number, got: "${raw}"`);
+  }
+  return parsed;
+};
+
 export const env = {
   cronSchedule: process.env.CRON_SCHEDULE ?? '*/5 * * * *',
   runOnStart: process.env.RUN_ON_START === 'true',
@@ -29,7 +39,7 @@ export const env = {
   hubspot: {
     accessToken: process.env.HUBSPOT_ACCESS_TOKEN,
     identityProperty: process.env.HUBSPOT_IDENTITY_PROPERTY ?? 'documento_de_identidad',
-    batchDelayMs: Number(process.env.HUBSPOT_BATCH_DELAY_MS ?? 100),
+    batchDelayMs: parseNonNegativeNumber('HUBSPOT_BATCH_DELAY_MS', 100),
   },
 };
 
