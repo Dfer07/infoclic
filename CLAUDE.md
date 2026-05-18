@@ -9,7 +9,7 @@ Servicio Node de larga duración que sincroniza CSVs de Cloudflare R2 hacia cont
 
 ## Stack
 
-Node 22 · `@aws-sdk/client-s3` · `@hubspot/api-client` · `csv-parse` · `iconv-lite` · `node-cron` · `pino` · Docker
+Node 22 · `@aws-sdk/client-s3` · `@hubspot/api-client` · `csv-parse` · `csv-stringify` · `iconv-lite` · `node-cron` · `pino` · Docker
 
 **No incluye Fastify ni ningún framework HTTP.** Es un proceso de fondo, no una API.
 
