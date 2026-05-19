@@ -1,10 +1,14 @@
 # CLAUDE.md — InfoClick
 
+> **Si retomas el proyecto en una sesión nueva, lee primero [docs/superpowers/HANDOFF.md](docs/superpowers/HANDOFF.md)** — resume el estado actual, qué se hizo y cuál es el próximo paso.
+
 Servicio Node de larga duración que sincroniza CSVs de Cloudflare R2 hacia contactos de HubSpot. No expone HTTP; corre con un cron interno (`node-cron`).
 
 ## Documentación de referencia
 
+- **Handoff (estado actual)**: [docs/superpowers/HANDOFF.md](docs/superpowers/HANDOFF.md)
 - **Spec técnico (fuente de verdad)**: [docs/superpowers/specs/2026-05-17-infoclick-design.md](docs/superpowers/specs/2026-05-17-infoclick-design.md)
+- **Plan de implementación**: [docs/superpowers/plans/2026-05-17-infoclick-implementation.md](docs/superpowers/plans/2026-05-17-infoclick-implementation.md)
 - **README**: predecesor del spec. En caso de conflicto, **gana el spec**.
 
 ## Stack
