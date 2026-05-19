@@ -1,12 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { processIncomingFiles } from '../../src/application/process-files.js';
+import { env } from '../../src/config/env.js';
+
+const ID = env.hubspot.identityProperty;
 
 function makeFakeDeps({
   files = [],
   fileBuffers = {},
-  hubspotProperties = new Set(['firstname', 'lastname', 'documento_de_identidad', 'email']),
+  hubspotProperties = new Set(['firstname', 'lastname', ID, 'email']),
   existingContacts = [],
+  createError = null,
 } = {}) {
   const movedTo = [];
   const uploaded = [];
@@ -27,6 +31,7 @@ function makeFakeDeps({
     fetchPropertyCatalog: async () => hubspotProperties,
     readByIdentity: async () => existingContacts,
     create: async (batch) => {
+      if (createError) throw createError;
       created.push(...batch);
       return batch.map((b, i) => ({ id: `c-${i}`, properties: b }));
     },
@@ -42,7 +47,7 @@ function makeFakeDeps({
 }
 
 test('procesa un archivo con 2 contactos nuevos', async () => {
-  const csv = 'firstname,lastname,documento_de_identidad,email\nCarlos,Martínez,12345,c@x.com\nLucía,Gómez,67890,l@x.com\n';
+  const csv = `firstname,lastname,${ID},email\nCarlos,Martínez,12345,c@x.com\nLucía,Gómez,67890,l@x.com\n`;
   const deps = makeFakeDeps({
     files: ['files_in/x.csv'],
     fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
@@ -58,12 +63,12 @@ test('procesa un archivo con 2 contactos nuevos', async () => {
 });
 
 test('actualiza solo campos vacíos en CRM (CRM gana)', async () => {
-  const csv = 'firstname,lastname,documento_de_identidad,email\nCarlos,Martínez,12345,c@x.com\n';
+  const csv = `firstname,lastname,${ID},email\nCarlos,Martínez,12345,c@x.com\n`;
   const deps = makeFakeDeps({
     files: ['files_in/x.csv'],
     fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
     existingContacts: [
-      { id: 'h1', properties: { documento_de_identidad: '12345', firstname: 'Andrés', lastname: '', email: '' } },
+      { id: 'h1', properties: { [ID]: '12345', firstname: 'Andrés', lastname: '', email: '' } },
     ],
   });
 
@@ -76,7 +81,7 @@ test('actualiza solo campos vacíos en CRM (CRM gana)', async () => {
 });
 
 test('aborta archivo si hay columna sin propiedad en HubSpot', async () => {
-  const csv = 'firstname,documento_de_identidad,columna_desconocida\nCarlos,12345,foo\n';
+  const csv = `firstname,${ID},columna_desconocida\nCarlos,12345,foo\n`;
   const deps = makeFakeDeps({
     files: ['files_in/x.csv'],
     fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
@@ -93,8 +98,8 @@ test('aborta archivo si hay columna sin propiedad en HubSpot', async () => {
   assert.ok(errorsUpload);
 });
 
-test('manda filas sin documento_de_identidad a .errors.csv', async () => {
-  const csv = 'firstname,lastname,documento_de_identidad,email\nCarlos,Martínez,,c@x.com\nLucía,Gómez,67890,l@x.com\n';
+test('manda filas sin identity a .errors.csv', async () => {
+  const csv = `firstname,lastname,${ID},email\nCarlos,Martínez,,c@x.com\nLucía,Gómez,67890,l@x.com\n`;
   const deps = makeFakeDeps({
     files: ['files_in/x.csv'],
     fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
@@ -111,7 +116,7 @@ test('manda filas sin documento_de_identidad a .errors.csv', async () => {
 });
 
 test('deduplicación intra-CSV: última fila gana', async () => {
-  const csv = 'firstname,documento_de_identidad\nCarlos,12345\nCarlosUpdated,12345\n';
+  const csv = `firstname,${ID}\nCarlos,12345\nCarlosUpdated,12345\n`;
   const deps = makeFakeDeps({
     files: ['files_in/x.csv'],
     fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
@@ -124,7 +129,7 @@ test('deduplicación intra-CSV: última fila gana', async () => {
 });
 
 test('sube un .report.json al final del procesamiento exitoso', async () => {
-  const csv = 'firstname,documento_de_identidad\nCarlos,12345\n';
+  const csv = `firstname,${ID}\nCarlos,12345\n`;
   const deps = makeFakeDeps({
     files: ['files_in/x.csv'],
     fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
@@ -140,7 +145,7 @@ test('sube un .report.json al final del procesamiento exitoso', async () => {
 });
 
 test('empty CSV generates report and moves to files_out', async () => {
-  const csv = 'firstname,documento_de_identidad\n'; // Only header, no rows
+  const csv = `firstname,${ID}\n`; // Only header, no rows
   const deps = makeFakeDeps({
     files: ['files_in/empty.csv'],
     fileBuffers: { 'files_in/empty.csv': Buffer.from(csv) },
@@ -165,4 +170,46 @@ test('empty CSV generates report and moves to files_out', async () => {
   // No errors CSV
   const errorsUpload = deps.calls.uploaded.find((u) => u.key.endsWith('.errors.csv'));
   assert.equal(errorsUpload, undefined);
+});
+
+test('error permanente de HubSpot (409 CONFLICT) mueve archivo a files_error/', async () => {
+  const csv = `firstname,${ID},email\nCarlos,12345,c@x.com\n`;
+  const conflictErr = Object.assign(new Error('Contact already exists'), {
+    code: 409,
+    body: { message: 'Contact already exists. Existing ID: 222544457474' },
+  });
+  const deps = makeFakeDeps({
+    files: ['files_in/x.csv'],
+    fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
+    createError: conflictErr,
+  });
+
+  await processIncomingFiles(deps);
+
+  // archivo movido a files_error/, NO a files_in/
+  assert.equal(deps.calls.movedTo.length, 1);
+  assert.ok(deps.calls.movedTo[0].destKey.startsWith('files_error/'));
+
+  // se subió un .errors.csv con la razón
+  const errorsUpload = deps.calls.uploaded.find((u) => u.key.endsWith('.errors.csv'));
+  assert.ok(errorsUpload);
+  assert.ok(errorsUpload.body.includes('409'));
+});
+
+test('error transitorio de HubSpot (503) deja archivo en files_in/ para retry', async () => {
+  const csv = `firstname,${ID},email\nCarlos,12345,c@x.com\n`;
+  const serverErr = Object.assign(new Error('Service Unavailable'), { code: 503 });
+  const deps = makeFakeDeps({
+    files: ['files_in/x.csv'],
+    fileBuffers: { 'files_in/x.csv': Buffer.from(csv) },
+    createError: serverErr,
+  });
+
+  await processIncomingFiles(deps);
+
+  // archivo NO movido (queda en files_in/ para próximo tick)
+  assert.equal(deps.calls.movedTo.length, 0);
+
+  // no se subió .errors.csv ni .report.json
+  assert.equal(deps.calls.uploaded.length, 0);
 });

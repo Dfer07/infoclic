@@ -12,6 +12,7 @@ test('resolveHubspotProperty respects COLUMN_OVERRIDES if defined', async () => 
   assert.equal(typeof mod.COLUMN_OVERRIDES, 'object');
 });
 
-test('IDENTITY_PROPERTY defaults to documento_de_identidad', () => {
-  assert.equal(IDENTITY_PROPERTY, 'documento_de_identidad');
+test('IDENTITY_PROPERTY se carga desde env como string no vacía', () => {
+  assert.equal(typeof IDENTITY_PROPERTY, 'string');
+  assert.ok(IDENTITY_PROPERTY.length > 0);
 });
