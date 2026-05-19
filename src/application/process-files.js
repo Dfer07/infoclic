@@ -15,6 +15,13 @@ function basename(key) {
   return key.split('/').pop();
 }
 
+function isTransientHubspotError(err) {
+  const code = err?.code ?? err?.statusCode ?? err?.response?.status;
+  if (typeof code !== 'number') return true;
+  if (code === 429) return true;
+  return code >= 500;
+}
+
 export async function processIncomingFiles(deps) {
   const { r2, hubspot, logger, clock } = deps;
   const keys = await r2.list();
@@ -169,7 +176,13 @@ async function processOneFile(key, propertyCatalog, deps) {
       }
     }
   } catch (err) {
-    logger.error({ err, key }, 'transient: hubspot operation failed, will retry');
+    if (isTransientHubspotError(err)) {
+      logger.error({ err, key }, 'transient: hubspot operation failed, will retry');
+      return;
+    }
+    logger.error({ err, key }, 'permanent: hubspot rejected request');
+    const reason = `HubSpot ${err?.code ?? err?.statusCode ?? 'error'}: ${err?.body?.message ?? err?.message ?? 'unknown'}`;
+    await failPermanently(key, ts, baseName, [{ row: {}, reason }], headers, deps);
     return;
   }
 
