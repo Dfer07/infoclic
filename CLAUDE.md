@@ -4,18 +4,36 @@
 
 Servicio Node de larga duración que sincroniza CSVs de Cloudflare R2 hacia contactos de HubSpot. No expone HTTP; corre con un cron interno (`node-cron`).
 
+**Estado:** implementación completa (39 tests pasando). Único pendiente: smoke test manual con credenciales reales (Task 15). Ver el handoff para el detalle.
+
 ## Documentación de referencia
 
 - **Handoff (estado actual)**: [docs/superpowers/HANDOFF.md](docs/superpowers/HANDOFF.md)
 - **Spec técnico (fuente de verdad)**: [docs/superpowers/specs/2026-05-17-infoclick-design.md](docs/superpowers/specs/2026-05-17-infoclick-design.md)
 - **Plan de implementación**: [docs/superpowers/plans/2026-05-17-infoclick-implementation.md](docs/superpowers/plans/2026-05-17-infoclick-implementation.md)
-- **README**: predecesor del spec. En caso de conflicto, **gana el spec**.
+- **README**: onboarding para devs (instalación, ejecución local, arquitectura, env vars, pendientes). En caso de conflicto técnico, **gana el spec**.
+
+Jerarquía ante conflicto: **spec > CLAUDE.md > plan > README**.
 
 ## Stack
 
 Node 22 · `@aws-sdk/client-s3` · `@hubspot/api-client` · `csv-parse` · `csv-stringify` · `iconv-lite` · `node-cron` · `pino` · Docker
 
-**No incluye Fastify ni ningún framework HTTP.** Es un proceso de fondo, no una API.
+**No incluye Fastify ni ningún framework HTTP.** Es un proceso de fondo, no una API. Sin base de datos: el estado vive en R2 (archivos + reportes) y en HubSpot.
+
+## Estructura del proyecto
+
+```
+src/
+├── config/       env.js (vars + validación) · properties.js (mapping CSV→HubSpot)
+├── domain/       transform.js (descarta vacíos) · merge.js (regla "CRM gana")
+├── infrastructure/  csv.js · r2.js · hubspot.js · report.js · logger.js
+├── application/  process-files.js (orquestador del flujo)
+├── index.js      entry cron (npm start)
+└── run-once.js   entry one-shot (npm run process-once)
+```
+
+Tests en `tests/**/*.test.js` (`npm test`, `node --test`). Los entry points se validan vía smoke test.
 
 ## Comandos
 
@@ -56,5 +74,5 @@ Node 22 · `@aws-sdk/client-s3` · `@hubspot/api-client` · `csv-parse` · `csv-
 ## Cómo documentamos cambios
 
 - **Cambios al spec**: agregar fila a la sección "Changelog" del spec con fecha y descripción breve.
-- **Cambios al código**: git commits descriptivos (cuando inicialicemos el repo).
+- **Cambios al código**: git commits descriptivos de **una sola línea**, formato convencional (`feat:`, `fix:`, `chore:`, `docs:`). **Nunca** añadir trailer `Co-Authored-By`.
 - **Decisiones nuevas o cambios en reglas de negocio**: actualizar el spec **y** este CLAUDE.md si corresponde.
