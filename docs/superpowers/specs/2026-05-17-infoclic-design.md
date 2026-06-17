@@ -1,4 +1,4 @@
-# InfoClick — Diseño técnico
+# InfoClic — Diseño técnico
 
 **Fecha**: 2026-05-17
 **Estado**: Aprobado para implementación
@@ -8,7 +8,7 @@
 
 ## 1. Contexto y problema
 
-El cliente de InfoClick lanza campañas de marketing (~1 por mes) y necesita cargar/actualizar contactos en su CRM (HubSpot) a partir de un CSV generado por su equipo desde una herramienta interna de consulta de bases de datos.
+El cliente de InfoClic lanza campañas de marketing (~1 por mes) y necesita cargar/actualizar contactos en su CRM (HubSpot) a partir de un CSV generado por su equipo desde una herramienta interna de consulta de bases de datos.
 
 Hoy el proceso es 100% manual: el equipo del cliente extrae datos, los filtra y los mapea uno a uno hacia el CRM. Esto genera retrasos en las campañas y datos inconsistentes.
 
@@ -61,7 +61,7 @@ Sin contenedores de DI, sin puertos/adaptadores formales. Inyección por imports
 ## 4. Estructura de carpetas
 
 ```
-smartflow-infoclick/
+smarflow-infoclic/
 ├── src/
 │   ├── config/
 │   │   ├── env.js              # vars de entorno
@@ -269,20 +269,20 @@ CMD ["node", "src/index.js"]
 ```yaml
 # compose.yaml
 services:
-  infoclick:
+  infoclic:
     build: .
-    container_name: infoclick
+    container_name: infoclic
     env_file: .env
     restart: unless-stopped
 ```
 
 Operación:
 
-1. SSH al VPS, clonar repo en `/opt/infoclick`.
+1. SSH al VPS, clonar repo en `/opt/infoclic`.
 2. Crear `.env` con credenciales reales.
 3. `docker compose up -d --build`.
-4. `docker compose logs -f infoclick` para verificar.
-5. Cambios de schedule: editar `.env` + `docker compose restart infoclick`.
+4. `docker compose logs -f infoclic` para verificar.
+5. Cambios de schedule: editar `.env` + `docker compose restart infoclic`.
 
 ## 11. Stack
 
@@ -367,6 +367,7 @@ Estas optimizaciones **no se implementan en MVP**, pero el código queda prepara
 | 2026-05-17 | Corrección de inconsistencia en niveles de log (sección 8): eliminada referencia a "columnas ignoradas" — el diseño aborta cuando una columna no existe en HubSpot, nunca las ignora. |
 | 2026-05-17 | Ajuste de ejemplo de reporte JSON (sección 5.8) para que las cifras sean internamente consistentes. Documentadas las invariantes. |
 | 2026-05-17 | Distinción explícita entre fallos **permanentes** (mover a `files_error/`, sin retry) y **transitorios** (queda en `files_in/`, retry). Afecta secciones 5.4, 5.10 y 9. Motivo: evitar generar `.errors.csv` duplicados cada tick cuando un fallo requiere intervención humana. |
+| 2026-06-16 | Renombrado del proyecto: `infoclick`→`infoclic` y prefijo `smartflow`→`smarflow` para alinear con el repositorio destino `smarteam-cr/Smarflow-infoclic`. El directorio local y el bucket R2 (`infoclic`) no cambian. |
 
 ---
 

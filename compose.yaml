@@ -1,6 +1,6 @@
 services:
-  infoclick:
+  infoclic:
     build: .
-    container_name: infoclick
+    container_name: infoclic
     env_file: .env
     restart: unless-stopped

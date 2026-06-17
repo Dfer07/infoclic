@@ -1,4 +1,4 @@
-# InfoClick — Handoff / Estado del Proyecto
+# InfoClic — Handoff / Estado del Proyecto
 
 **Fecha de corte:** 2026-05-19
 **Branch:** `feat/initial-implementation`
@@ -11,7 +11,7 @@ Este documento es un **punto de entrada para cualquier nueva sesión de Claude**
 
 ## TL;DR — Qué es y dónde estamos parados
 
-**InfoClick** es un servicio Node 22 de larga duración (cron interno con `node-cron`) que sincroniza CSVs de un bucket Cloudflare R2 (`infoclic`) hacia contactos de HubSpot. No expone HTTP.
+**InfoClic** es un servicio Node 22 de larga duración (cron interno con `node-cron`) que sincroniza CSVs de un bucket Cloudflare R2 (`infoclic`) hacia contactos de HubSpot. No expone HTTP.
 
 **Estado:** Implementación **100% completa** (tasks 1–14 + 16). Listo para el **smoke test manual (Task 15)** que requiere credenciales reales. 39 tests automatizados pasando. Repo limpio salvo una modificación local de `.claude/settings.json` (no relevante al producto).
 
@@ -25,8 +25,8 @@ Orden de lectura recomendado para una sesión nueva:
 
 1. **Este archivo** (`docs/superpowers/HANDOFF.md`) — contexto y próximo paso
 2. **[CLAUDE.md](../../CLAUDE.md)** — instrucciones permanentes del proyecto, stack, reglas de negocio críticas, convenciones
-3. **[Spec técnico](specs/2026-05-17-infoclick-design.md)** — fuente de verdad del diseño (objetivos, flujo, error handling, configuración)
-4. **[Plan de implementación](plans/2026-05-17-infoclick-implementation.md)** — desglose de las 16 tareas; útil si hay que retomar algo o entender por qué se decidió X
+3. **[Spec técnico](specs/2026-05-17-infoclic-design.md)** — fuente de verdad del diseño (objetivos, flujo, error handling, configuración)
+4. **[Plan de implementación](plans/2026-05-17-infoclic-implementation.md)** — desglose de las 16 tareas; útil si hay que retomar algo o entender por qué se decidió X
 5. **[README.md](../../README.md)** — quick start mínimo (deliberadamente corto, apunta al spec)
 
 **Jerarquía cuando hay conflicto:** spec > CLAUDE.md > plan > README. El spec es la fuente de verdad.

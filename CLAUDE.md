@@ -1,4 +1,4 @@
-# CLAUDE.md — InfoClick
+# CLAUDE.md — InfoClic
 
 > **Si retomas el proyecto en una sesión nueva, lee primero [docs/superpowers/HANDOFF.md](docs/superpowers/HANDOFF.md)** — resume el estado actual, qué se hizo y cuál es el próximo paso.
 
@@ -9,8 +9,8 @@ Servicio Node de larga duración que sincroniza CSVs de Cloudflare R2 hacia cont
 ## Documentación de referencia
 
 - **Handoff (estado actual)**: [docs/superpowers/HANDOFF.md](docs/superpowers/HANDOFF.md)
-- **Spec técnico (fuente de verdad)**: [docs/superpowers/specs/2026-05-17-infoclick-design.md](docs/superpowers/specs/2026-05-17-infoclick-design.md)
-- **Plan de implementación**: [docs/superpowers/plans/2026-05-17-infoclick-implementation.md](docs/superpowers/plans/2026-05-17-infoclick-implementation.md)
+- **Spec técnico (fuente de verdad)**: [docs/superpowers/specs/2026-05-17-infoclic-design.md](docs/superpowers/specs/2026-05-17-infoclic-design.md)
+- **Plan de implementación**: [docs/superpowers/plans/2026-05-17-infoclic-implementation.md](docs/superpowers/plans/2026-05-17-infoclic-implementation.md)
 - **README**: onboarding para devs (instalación, ejecución local, arquitectura, env vars, pendientes). En caso de conflicto técnico, **gana el spec**.
 
 Jerarquía ante conflicto: **spec > CLAUDE.md > plan > README**.

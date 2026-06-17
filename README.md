@@ -1,4 +1,4 @@
-# InfoClick
+# InfoClic
 
 Servicio **Node 22 de larga duración** que sincroniza CSVs desde un bucket de **Cloudflare R2** hacia contactos de **HubSpot**. Corre con un cron interno (`node-cron`); **no expone HTTP** ni tiene base de datos: es un proceso de fondo (headless).
 
@@ -6,7 +6,7 @@ Servicio **Node 22 de larga duración** que sincroniza CSVs desde un bucket de *
 
 ## 1. Descripción general
 
-El cliente lanza ~1 campaña de marketing al mes y sube un CSV estandarizado al bucket R2. InfoClick, en cada tick del cron:
+El cliente lanza ~1 campaña de marketing al mes y sube un CSV estandarizado al bucket R2. InfoClic, en cada tick del cron:
 
 ```
 lista files_in/ → por cada CSV:
@@ -47,7 +47,7 @@ lista files_in/ → por cada CSV:
 ## 3. Ejecución local
 
 ```bash
-git clone <repo> && cd smartflow-infoclick
+git clone <repo> && cd smarflow-infoclic
 npm install
 cp .env.example .env        # editar .env con credenciales reales (ver sección 4)
 npm run process-once        # ejecuta una iteración y sale
@@ -160,10 +160,10 @@ VPS Hostinger con Docker (`node:22-alpine`, usuario no-root, `restart: unless-st
 ```bash
 # en el VPS, dentro del repo, con .env ya creado
 docker compose up -d --build
-docker compose logs -f infoclick
+docker compose logs -f infoclic
 ```
 
-Cambios de schedule: editar `.env` + `docker compose restart infoclick`.
+Cambios de schedule: editar `.env` + `docker compose restart infoclic`.
 
 **Migración a producción:**
 1. Cambiar `HUBSPOT_ACCESS_TOKEN` a la cuenta real.
@@ -175,7 +175,7 @@ Cambios de schedule: editar `.env` + `docker compose restart infoclick`.
 ## 8. Pendientes, riesgos y recomendaciones
 
 ### Pendientes
-- **Smoke test con credenciales reales** (Task 15): única tarea abierta. Validar el flujo end-to-end contra R2 + HubSpot reales (caso feliz, "CRM gana", no sobrescribir vacíos, deduplicación, errores permanentes/granulares). Detalle en el [plan de implementación](docs/superpowers/plans/2026-05-17-infoclick-implementation.md).
+- **Smoke test con credenciales reales** (Task 15): única tarea abierta. Validar el flujo end-to-end contra R2 + HubSpot reales (caso feliz, "CRM gana", no sobrescribir vacíos, deduplicación, errores permanentes/granulares). Detalle en el [plan de implementación](docs/superpowers/plans/2026-05-17-infoclic-implementation.md).
 - **Regla de discrepancia (CSV vs CRM):** interim → "CRM gana". Pendiente de cierre por el cliente. Si pasa a "CSV gana", el código se simplifica (upsert directo).
 
 ### Riesgos conocidos
@@ -194,8 +194,8 @@ Cambios de schedule: editar `.env` + `docker compose restart infoclick`.
 
 ## 9. Documentación de referencia
 
-- **Spec técnico (fuente de verdad):** [docs/superpowers/specs/2026-05-17-infoclick-design.md](docs/superpowers/specs/2026-05-17-infoclick-design.md)
-- **Plan de implementación:** [docs/superpowers/plans/2026-05-17-infoclick-implementation.md](docs/superpowers/plans/2026-05-17-infoclick-implementation.md)
+- **Spec técnico (fuente de verdad):** [docs/superpowers/specs/2026-05-17-infoclic-design.md](docs/superpowers/specs/2026-05-17-infoclic-design.md)
+- **Plan de implementación:** [docs/superpowers/plans/2026-05-17-infoclic-implementation.md](docs/superpowers/plans/2026-05-17-infoclic-implementation.md)
 - **Estado del proyecto (handoff):** [docs/superpowers/HANDOFF.md](docs/superpowers/HANDOFF.md)
 - **Instrucciones del proyecto:** [CLAUDE.md](CLAUDE.md)
 

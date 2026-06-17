@@ -68,7 +68,7 @@ async function main() {
   }
 
   cron.schedule(env.cronSchedule, tick);
-  logger.info({ schedule: env.cronSchedule }, 'infoclick scheduler started');
+  logger.info({ schedule: env.cronSchedule }, 'infoclic scheduler started');
 }
 
 main().catch((err) => {

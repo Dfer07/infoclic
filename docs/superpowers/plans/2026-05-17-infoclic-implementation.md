@@ -1,4 +1,4 @@
-# InfoClick Implementation Plan
+# InfoClic Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** Node 22 · `@aws-sdk/client-s3` · `@hubspot/api-client` · `csv-parse` · `iconv-lite` · `node-cron` · `pino` · `dotenv` · Docker
 
-**Spec de referencia:** [docs/superpowers/specs/2026-05-17-infoclick-design.md](../specs/2026-05-17-infoclick-design.md)
+**Spec de referencia:** [docs/superpowers/specs/2026-05-17-infoclic-design.md](../specs/2026-05-17-infoclic-design.md)
 
 ---
 
@@ -17,7 +17,7 @@
 Lo que vamos a haber construido al terminar:
 
 ```
-smartflow-infoclick/
+smarflow-infoclic/
 ├── src/
 │   ├── config/
 │   │   ├── env.js              # carga .env, expone objeto env
@@ -88,7 +88,7 @@ smartflow-infoclick/
 
 ```json
 {
-  "name": "smartflow-infoclick",
+  "name": "smarflow-infoclic",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -282,7 +282,7 @@ import { env } from '../config/env.js';
 
 export const logger = pino({
   level: env.logLevel,
-  base: { service: 'infoclick' },
+  base: { service: 'infoclic' },
   timestamp: pino.stdTimeFunctions.isoTime,
 });
 ```
@@ -293,7 +293,7 @@ export const logger = pino({
 node -e "import('./src/infrastructure/logger.js').then(({logger}) => logger.info({foo:'bar'}, 'hello'))"
 ```
 
-Expected: una línea JSON con `level`, `time`, `service:"infoclick"`, `foo:"bar"`, `msg:"hello"`.
+Expected: una línea JSON con `level`, `time`, `service:"infoclic"`, `foo:"bar"`, `msg:"hello"`.
 
 - [ ] **Step 3: Commit**
 
@@ -1727,7 +1727,7 @@ async function main() {
   }
 
   cron.schedule(env.cronSchedule, tick);
-  logger.info({ schedule: env.cronSchedule }, 'infoclick scheduler started');
+  logger.info({ schedule: env.cronSchedule }, 'infoclic scheduler started');
 }
 
 main().catch((err) => {
@@ -1775,9 +1775,9 @@ CMD ["node", "src/index.js"]
 
 ```yaml
 services:
-  infoclick:
+  infoclic:
     build: .
-    container_name: infoclick
+    container_name: infoclic
     env_file: .env
     restart: unless-stopped
 ```
@@ -1935,14 +1935,14 @@ git commit -m "chore: smoke test adjustments"
 El README original era el predecesor del spec. Lo reducimos a un puntero claro:
 
 ```markdown
-# InfoClick
+# InfoClic
 
 Servicio Node que sincroniza CSVs de Cloudflare R2 hacia contactos de HubSpot, con un cron interno.
 
 ## Documentación
 
-- **Spec técnico (fuente de verdad)**: [docs/superpowers/specs/2026-05-17-infoclick-design.md](docs/superpowers/specs/2026-05-17-infoclick-design.md)
-- **Plan de implementación**: [docs/superpowers/plans/2026-05-17-infoclick-implementation.md](docs/superpowers/plans/2026-05-17-infoclick-implementation.md)
+- **Spec técnico (fuente de verdad)**: [docs/superpowers/specs/2026-05-17-infoclic-design.md](docs/superpowers/specs/2026-05-17-infoclic-design.md)
+- **Plan de implementación**: [docs/superpowers/plans/2026-05-17-infoclic-implementation.md](docs/superpowers/plans/2026-05-17-infoclic-implementation.md)
 - **CLAUDE.md**: [CLAUDE.md](CLAUDE.md) (índice rápido del proyecto)
 
 ## Quick start
@@ -1959,7 +1959,7 @@ npm start              # cron continuo
 
 ```bash
 docker compose up -d --build
-docker compose logs -f infoclick
+docker compose logs -f infoclic
 ```
 ```
 
